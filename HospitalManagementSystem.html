@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hospital Management System</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#1e293b;
+    --panel2:#273449;
+    --accent:#38bdf8;
+    --accent2:#22c55e;
+    --danger:#ef4444;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+    --border:#334155;
+  }
+  *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+  body{
+    margin:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+    color:var(--text);min-height:100vh;
+  }
+  header{
+    background:linear-gradient(90deg,#0ea5e9,#2563eb);
+    padding:18px 28px;display:flex;align-items:center;gap:14px;
+    box-shadow:0 4px 18px rgba(0,0,0,.4);
+  }
+  header .logo{
+    font-size:34px;
+  }
+  header h1{margin:0;font-size:22px;letter-spacing:.5px;}
+  header p{margin:2px 0 0;font-size:12px;color:#dbeafe;}
+  .wrap{display:flex;max-width:1300px;margin:0 auto;}
+  .sidebar{
+    width:230px;padding:18px 12px;border-right:1px solid var(--border);
+    min-height:calc(100vh - 80px);
+  }
+  .menu-btn{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:var(--panel);color:var(--text);border:1px solid var(--border);
+    padding:11px 14px;margin-bottom:8px;border-radius:10px;cursor:pointer;
+    font-size:14px;transition:.15s;
+  }
+  .menu-btn:hover{background:var(--panel2);border-color:var(--accent);transform:translateX(3px);}
+  .menu-btn.active{background:linear-gradient(90deg,#0284c7,#0369a1);border-color:var(--accent);font-weight:600;}
+  .menu-btn .ic{font-size:18px;width:22px;text-align:center;}
+  .menu-btn.exit{color:#fca5a5;}
+  .content{flex:1;padding:26px 30px;}
+  .card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:24px;margin-bottom:20px;box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  .card h2{margin:0 0 4px;font-size:19px;}
+  .card .sub{color:var(--muted);font-size:13px;margin-bottom:18px;}
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px;}
+  input,select{
+    width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);
+    background:#0b1220;color:var(--text);font-size:14px;outline:none;
+  }
+  input:focus,select:focus{border-color:var(--accent);}
+  .row{display:flex;gap:14px;flex-wrap:wrap;}
+  .row > div{flex:1;min-width:150px;}
+  button.action{
+    margin-top:18px;background:linear-gradient(90deg,#16a34a,#22c55e);color:#fff;
+    border:none;padding:11px 22px;border-radius:9px;font-size:14px;font-weight:600;
+    cursor:pointer;transition:.15s;
+  }
+  button.action:hover{filter:brightness(1.1);transform:translateY(-1px);}
+  button.action.blue{background:linear-gradient(90deg,#2563eb,#3b82f6);}
+  .stats{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat{
+    flex:1;min-width:140px;background:var(--panel);border:1px solid var(--border);
+    border-radius:12px;padding:16px 18px;
+  }
+  .stat .num{font-size:28px;font-weight:700;color:var(--accent);}
+  .stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
+  th{color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+  tr:hover td{background:rgba(56,189,248,.06);}
+  .badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge.yes{background:rgba(34,197,94,.18);color:#4ade80;}
+  .badge.no{background:rgba(239,68,68,.18);color:#f87171;}
+  .badge.doc{background:rgba(56,189,248,.18);color:#38bdf8;}
+  .empty{color:var(--muted);text-align:center;padding:30px;font-style:italic;}
+  .console{
+    background:#0b1220;border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;font-family:'Consolas',monospace;font-size:13px;
+    min-height:60px;white-space:pre-wrap;color:#7dd3fc;margin-top:16px;
+  }
+  .console .ok{color:#4ade80;}
+  .console .err{color:#f87171;}
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:var(--panel2);
+    border:1px solid var(--accent);padding:14px 20px;border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(20px);
+    transition:.3s;font-size:14px;z-index:99;max-width:340px;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.err{border-color:var(--danger);}
+  .appt{font-size:12px;color:var(--muted);}
+  .hidden{display:none;}
+  footer.credits{
+    text-align:center;padding:18px;color:var(--muted);font-size:12.5px;
+    border-top:1px solid var(--border);margin-top:10px;
+  }
+  footer.credits b{color:var(--accent);}
+  /* Receipt (hidden on screen, shown only when printing) */
+  #receipt{display:none;}
+  @media print{
+    body * {visibility:hidden;}
+    #receipt, #receipt * {visibility:visible;}
+    #receipt{
+      display:block;position:absolute;left:0;top:0;width:100%;
+      background:#fff;color:#000;padding:40px;
+    }
+  }
+  .receipt-box{
+    max-width:520px;margin:0 auto;background:#fff;color:#000;
+    border:2px solid #000;padding:30px;font-family:'Consolas',monospace;
+  }
+  .receipt-box h2{text-align:center;margin:0 0 4px;}
+  .receipt-box .rc-sub{text-align:center;font-size:12px;margin-bottom:18px;}
+  .receipt-box table{width:100%;border-collapse:collapse;margin:14px 0;}
+  .receipt-box th,.receipt-box td{border-bottom:1px dashed #999;padding:6px 4px;text-align:left;font-size:13px;}
+  .receipt-box .total-row td{border-top:2px solid #000;border-bottom:none;font-weight:700;font-size:15px;padding-top:10px;}
+  .receipt-box .rc-foot{text-align:center;margin-top:18px;font-size:11px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🏥</div>
+  <div>
+    <h1>Hospital Management System</h1>
+    <p>C++ OOP Project &mdash; Graphical Interface</p>
+  </div>
+  <div style="margin-left:auto;text-align:right;font-size:12px;color:#dbeafe;line-height:1.5;">
+    <div style="font-weight:700;font-size:13px;color:#fff;">Group Members</div>
+    <div>Ibtasam Qamar</div>
+    <div>Syeda Ritaj Yaseen</div>
+    <div>Abdul Hai Adnan</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="sidebar">
+    <button class="menu-btn active" data-view="dashboard"><span class="ic">📊</span> Dashboard</button>
+    <button class="menu-btn" data-view="addPatient"><span class="ic">➕</span> Add Patient</button>
+    <button class="menu-btn" data-view="addDoctor"><span class="ic">🩺</span> Add Doctor</button>
+    <button class="menu-btn" data-view="assign"><span class="ic">🔗</span> Assign Doctor</button>
+    <button class="menu-btn" data-view="display"><span class="ic">🔍</span> Display Patient</button>
+    <button class="menu-btn" data-view="appointment"><span class="ic">📅</span> Create Appointment</button>
+    <button class="menu-btn" data-view="treated"><span class="ic">✅</span> Mark Treated</button>
+    <button class="menu-btn" data-view="bill"><span class="ic">💵</span> Add Item &amp; Bill</button>
+    <button class="menu-btn" data-view="doctors"><span class="ic">📋</span> Show Doctors</button>
+    <button class="menu-btn" data-view="all"><span class="ic">🗂️</span> Show All</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="view">
+      <div class="stats">
+        <div class="stat"><div class="num" id="statPatients">0</div><div class="lbl">Total Patients</div></div>
+        <div class="stat"><div class="num" id="statDoctors">0</div><div class="lbl">Total Doctors</div></div>
+        <div class="stat"><div class="num" id="statTreated">0</div><div class="lbl">Treated</div></div>
+        <div class="stat"><div class="num" id="statPending">0</div><div class="lbl">Pending</div></div>
+      </div>
+      <div class="card">
+        <h2>Patients</h2>
+        <div class="sub">All registered patients (mirrors <code>vector&lt;patient&gt;</code>)</div>
+        <div id="patientTable"></div>
+      </div>
+      <div class="card">
+        <h2>Doctors</h2>
+        <div class="sub">All registered doctors (mirrors <code>vector&lt;doctor&gt;</code>)</div>
+        <div id="doctorTableDash"></div>
+      </div>
+    </div>
+
+    <!-- ADD PATIENT -->
+    <div id="addPatient" class="view hidden">
+      <div class="card">
+        <h2>➕ Add Patient</h2>
+        <div class="sub">Creates a new <code>patient</code> object &amp; increments <code>totalPatients</code></div>
+        <div class="row">
+          <div><label>Name</label><input id="p_name" placeholder="e.g. Ali"></div>
+          <div><label>ID</label><input id="p_id" type="number" placeholder="e.g. 101"></div>
+        </div>
+        <div class="row">
+          <div><label>Age</label><input id="p_age" type="number" placeholder="e.g. 25"></div>
+          <div><label>Illness</label><input id="p_ill" placeholder="e.g. cardiology"></div>
+        </div>
+        <button class="action" onclick="addPatient()">Add Patient</button>
+        <div class="console" id="c_addPatient">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- ADD DOCTOR -->
+    <div id="addDoctor" class="view hidden">
+      <div class="card">
+        <h2>🩺 Add Doctor</h2>
+        <div class="sub">Creates a new <code>doctor</code> object</div>
+        <div class="row">
+          <div><label>Name</label><input id="d_name" placeholder="e.g. Dr. Sara"></div>
+          <div><label>ID</label><input id="d_id" type="number" placeholder="e.g. 1"></div>
+        </div>
+        <div class="row">
+          <div><label>Age</label><input id="d_age" type="number" placeholder="e.g. 40"></div>
+          <div><label>Speciality</label><input id="d_spec" placeholder="e.g. cardiology"></div>
+        </div>
+        <button class="action" onclick="addDoctor()">Add Doctor</button>
+        <div class="console" id="c_addDoctor">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- ASSIGN -->
+    <div id="assign" class="view hidden">
+      <div class="card">
+        <h2>🔗 Assign Doctor</h2>
+        <div class="sub">Assigns a doctor to a patient — <b>speciality must match illness</b> (your rule)</div>
+        <label>Patient ID</label>
+        <input id="as_pid" type="number" placeholder="Enter patient ID">
+        <button class="action blue" onclick="assignDoctor()">Assign Matching Doctor</button>
+        <div class="console" id="c_assign">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- DISPLAY -->
+    <div id="display" class="view hidden">
+      <div class="card">
+        <h2>🔍 Display Patient</h2>
+        <div class="sub">Shows full patient details &amp; appointments (mirrors <code>display()</code>)</div>
+        <label>Patient ID</label>
+        <input id="di_pid" type="number" placeholder="Enter patient ID">
+        <button class="action blue" onclick="displayPatient()">Show Details</button>
+        <div class="console" id="c_display">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENT -->
+    <div id="appointment" class="view hidden">
+      <div class="card">
+        <h2>📅 Create Appointment</h2>
+        <div class="sub">Adds an appointment to the patient's <code>vector&lt;appointment&gt;</code></div>
+        <label>Patient ID</label>
+        <input id="ap_pid" type="number" placeholder="Enter patient ID">
+        <div class="row">
+          <div><label>Date</label><input id="ap_date" placeholder="e.g. 22-06-2026"></div>
+          <div><label>Day</label><input id="ap_day" placeholder="e.g. Monday"></div>
+          <div><label>Time</label><input id="ap_time" placeholder="e.g. 10:00AM"></div>
+        </div>
+        <button class="action" onclick="createAppointment()">Create Appointment</button>
+        <div class="console" id="c_appointment">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- TREATED -->
+    <div id="treated" class="view hidden">
+      <div class="card">
+        <h2>✅ Mark Treated</h2>
+        <div class="sub">Sets <code>istreated=true</code> &amp; removes patient from doctor's list</div>
+        <label>Patient ID</label>
+        <input id="tr_pid" type="number" placeholder="Enter patient ID">
+        <button class="action" onclick="markTreated()">Mark as Treated</button>
+        <div class="console" id="c_treated">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- BILL -->
+    <div id="bill" class="view hidden">
+      <div class="card">
+        <h2>💵 Add Item &amp; Generate Bill</h2>
+        <div class="sub">Adds an item to the patient's bill &amp; calls <code>generateBill()</code></div>
+        <label>Patient ID</label>
+        <input id="bl_pid" type="number" placeholder="Enter patient ID">
+        <div class="row">
+          <div><label>Item Name</label><input id="bl_item" placeholder="e.g. X-Ray"></div>
+          <div><label>Price</label><input id="bl_price" type="number" placeholder="e.g. 1500"></div>
+        </div>
+        <button class="action" onclick="addItem()">Add Item &amp; Show Bill</button>
+        <button class="action blue" onclick="printReceipt()">🧾 Print Bill Receipt</button>
+        <div class="console" id="c_bill">&gt; Ready.</div>
+      </div>
+    </div>
+
+    <!-- DOCTORS LIST -->
+    <div id="doctors" class="view hidden">
+      <div class="card">
+        <h2>📋 Doctor List</h2>
+        <div class="sub">All doctors (mirrors choice 8)</div>
+        <div id="doctorTable"></div>
+      </div>
+    </div>
+
+    <!-- SHOW ALL -->
+    <div id="all" class="view hidden">
+      <div class="card">
+        <h2>🗂️ All Patients</h2>
+        <div id="allPatients"></div>
+      </div>
+      <div class="card">
+        <h2>🗂️ All Doctors</h2>
+        <div id="allDoctors"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="credits">
+  Hospital Management System &mdash; C++ OOP Project &nbsp;|&nbsp;
+  Developed by <b>Ibtasam Qamar</b>, <b>Syeda Ritaj Yaseen</b> &amp; <b>Abdul Hai Adnan</b>
+</footer>
+
+<!-- Printable receipt (hidden on screen) -->
+<div id="receipt"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Logic mirrors the C++ Hospital Management System exactly.
+   ============================================================ */
+
+let patients = [];   // {name,id,age,illness,treated,doctorId,appointments:[{date,day,time}], items:[{name,price}]}
+let doctors  = [];   // {name,id,age,speciality, patientIds:[]}
+let totalPatients = 0;  // matches static patient::totalPatients
+
+// ---------- helpers ----------
+function findPatient(id){ return patients.find(p=>p.id===id); }
+function findDoctor(id){ return doctors.find(d=>d.id===id); }
+function toast(msg, isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  setTimeout(()=>t.className='toast',2600);
+}
+function log(id, html){ document.getElementById(id).innerHTML='&gt; '+html; }
+
+// ---------- navigation ----------
+document.querySelectorAll('.menu-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+    document.getElementById(btn.dataset.view).classList.remove('hidden');
+    refresh();
+  });
+});
+
+// ---------- choice 1: Add Patient ----------
+function addPatient(){
+  const name=p_name.value.trim();
+  const id=parseInt(p_id.value);
+  const age=parseInt(p_age.value);
+  const ill=p_ill.value.trim();
+  if(!name||isNaN(id)||isNaN(age)||!ill){ log('c_addPatient','<span class="err">Please fill all fields.</span>'); return; }
+  if(findPatient(id)){ log('c_addPatient','<span class="err">A patient with ID '+id+' already exists.</span>'); return; }
+  patients.push({name,id,age,illness:ill,treated:false,doctorId:null,appointments:[],items:[]});
+  totalPatients++;
+  log('c_addPatient','<span class="ok">Patient added.</span>  totalPatients = '+totalPatients);
+  toast('✅ Patient "'+name+'" added');
+  p_name.value=p_id.value=p_age.value=p_ill.value='';
+  refresh();
+}
+
+// ---------- choice 2: Add Doctor ----------
+function addDoctor(){
+  const name=d_name.value.trim();
+  const id=parseInt(d_id.value);
+  const age=parseInt(d_age.value);
+  const spec=d_spec.value.trim();
+  if(!name||isNaN(id)||isNaN(age)||!spec){ log('c_addDoctor','<span class="err">Please fill all fields.</span>'); return; }
+  if(findDoctor(id)){ log('c_addDoctor','<span class="err">A doctor with ID '+id+' already exists.</span>'); return; }
+  doctors.push({name,id,age,speciality:spec,patientIds:[]});
+  log('c_addDoctor','<span class="ok">Doctor added successfully.</span>');
+  toast('🩺 Doctor "'+name+'" added');
+  d_name.value=d_id.value=d_age.value=d_spec.value='';
+  refresh();
+}
+
+// ---------- choice 3: Assign Doctor (speciality must match illness) ----------
+function assignDoctor(){
+  const pid=parseInt(as_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_assign','<span class="err">Patient not found.</span>'); return; }
+  let assigned=false, mismatch=false;
+  for(const d of doctors){
+    if(d.speciality===p.illness){
+      p.doctorId=d.id;
+      if(!d.patientIds.includes(p.id)) d.patientIds.push(p.id);
+      assigned=true;
+      log('c_assign','<span class="ok">Doctor assigned successfully</span><br>'+d.name+' &rarr; '+p.name+' ('+p.illness+')');
+      toast('🔗 '+d.name+' assigned to '+p.name);
+      break;
+    } else mismatch=true;
+  }
+  if(!assigned){
+    log('c_assign','<span class="err">Speciality mismatch!</span> No doctor has speciality "'+p.illness+'".');
+    toast('⚠️ No matching doctor for "'+p.illness+'"',true);
+  }
+  refresh();
+}
+
+// ---------- choice 4: Display Patient ----------
+function displayPatient(){
+  const pid=parseInt(di_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_display','<span class="err">patient not found</span>'); return; }
+  let doc = p.doctorId!=null ? findDoctor(p.doctorId) : null;
+  let out='Patient: '+p.name+' | ID: '+p.id+'  Age: '+p.age+'  Illness: '+p.illness+'\n';
+  out+='Treated: '+(p.treated?'Yes':'No')+'\n';
+  out+='Doctor: '+(doc?doc.name+' ('+doc.speciality+')':'None')+'\n';
+  out+='Bill so far: Rs. '+p.items.reduce((s,i)=>s+i.price,0)+'\n';
+  if(p.appointments.length){
+    p.appointments.forEach(a=>{ out+='Appointment -> '+a.date+' '+a.day+' at '+a.time+'\n'; });
+  } else out+='(no appointments)\n';
+  log('c_display',out.replace(/\n/g,'<br>'));
+}
+
+// ---------- choice 5: Create Appointment ----------
+function createAppointment(){
+  const pid=parseInt(ap_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_appointment','<span class="err">Patient not found.</span>'); return; }
+  const date=ap_date.value.trim(), day=ap_day.value.trim(), time=ap_time.value.trim();
+  if(!date||!day||!time){ log('c_appointment','<span class="err">Enter date, day and time.</span>'); return; }
+  p.appointments.push({date,day,time});
+  log('c_appointment','<span class="ok">Appointment created.</span><br>Appointment -> '+date+' '+day+' at '+time);
+  toast('📅 Appointment added for '+p.name);
+  ap_date.value=ap_day.value=ap_time.value='';
+  refresh();
+}
+
+// ---------- choice 6: Mark Treated ----------
+function markTreated(){
+  const pid=parseInt(tr_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_treated','<span class="err">Patient not found.</span>'); return; }
+  p.treated=true;
+  if(p.doctorId!=null){
+    const d=findDoctor(p.doctorId);
+    if(d) d.patientIds=d.patientIds.filter(x=>x!==p.id);
+  }
+  log('c_treated','<span class="ok">Patient marked as treated.</span> Removed from doctor\'s list.');
+  toast('✅ '+p.name+' marked treated');
+  refresh();
+}
+
+// ---------- choice 7: Add Item & Generate Bill ----------
+function addItem(){
+  const pid=parseInt(bl_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_bill','<span class="err">Patient not found.</span>'); return; }
+  const item=bl_item.value.trim(), price=parseFloat(bl_price.value);
+  if(!item||isNaN(price)){ log('c_bill','<span class="err">Enter item name and price.</span>'); return; }
+  p.items.push({name:item,price});
+  const total=p.items.reduce((s,i)=>s+i.price,0);
+  log('c_bill','<span class="ok">Item added.</span><br>Total Bill: Rs. '+total);
+  toast('💵 '+item+' added • Total Rs. '+total);
+  bl_item.value=bl_price.value='';
+  refresh();
+}
+
+// ---------- Print Bill Receipt ----------
+function printReceipt(){
+  const pid=parseInt(bl_pid.value);
+  const p=findPatient(pid);
+  if(!p){ log('c_bill','<span class="err">Enter a valid Patient ID to print receipt.</span>'); toast('⚠️ Patient not found',true); return; }
+  if(!p.items.length){ log('c_bill','<span class="err">No items billed for this patient yet.</span>'); toast('⚠️ No items to bill',true); return; }
+  const doc=p.doctorId!=null?findDoctor(p.doctorId):null;
+  const total=p.items.reduce((s,i)=>s+i.price,0);
+  const now=new Date();
+  let rows='';
+  p.items.forEach((i,n)=>{ rows+='<tr><td>'+(n+1)+'</td><td>'+i.name+'</td><td style="text-align:right">Rs. '+i.price+'</td></tr>'; });
+  document.getElementById('receipt').innerHTML=
+    '<div class="receipt-box">'+
+      '<h2>🏥 City General Hospital</h2>'+
+      '<div class="rc-sub">Official Bill Receipt</div>'+
+      '<div style="font-size:12px;">'+
+        '<b>Date:</b> '+now.toLocaleString()+'<br>'+
+        '<b>Patient:</b> '+p.name+' (ID: '+p.id+')<br>'+
+        '<b>Age:</b> '+p.age+' &nbsp; <b>Illness:</b> '+p.illness+'<br>'+
+        '<b>Doctor:</b> '+(doc?doc.name+' ('+doc.speciality+')':'Not assigned')+'<br>'+
+        '<b>Status:</b> '+(p.treated?'Treated':'Under Treatment')+
+      '</div>'+
+      '<table><tr><th>#</th><th>Item / Service</th><th style="text-align:right">Price</th></tr>'+
+      rows+
+      '<tr class="total-row"><td colspan="2">TOTAL PAYABLE</td><td style="text-align:right">Rs. '+total+'</td></tr></table>'+
+      '<div class="rc-foot">Thank you for choosing City General Hospital.<br>'+
+      'Developed by Ibtasam Qamar, Syeda Ritaj Yaseen &amp; Abdul Hai Adnan</div>'+
+    '</div>';
+  log('c_bill','<span class="ok">Receipt generated — opening print dialog…</span>');
+  setTimeout(()=>window.print(),200);
+}
+
+// ---------- rendering ----------
+function patTable(list){
+  if(!list.length) return '<div class="empty">No patients yet.</div>';
+  let h='<table><tr><th>ID</th><th>Name</th><th>Age</th><th>Illness</th><th>Doctor</th><th>Status</th><th>Bill</th><th>Appts</th></tr>';
+  list.forEach(p=>{
+    const d=p.doctorId!=null?findDoctor(p.doctorId):null;
+    const bill=p.items.reduce((s,i)=>s+i.price,0);
+    h+='<tr><td>'+p.id+'</td><td>'+p.name+'</td><td>'+p.age+'</td><td>'+p.illness+'</td>'+
+       '<td>'+(d?'<span class="badge doc">'+d.name+'</span>':'<span style="color:#64748b">—</span>')+'</td>'+
+       '<td><span class="badge '+(p.treated?'yes':'no')+'">'+(p.treated?'Treated':'Pending')+'</span></td>'+
+       '<td>Rs. '+bill+'</td><td>'+p.appointments.length+'</td></tr>';
+  });
+  return h+'</table>';
+}
+function docTable(list){
+  if(!list.length) return '<div class="empty">No doctors yet.</div>';
+  let h='<table><tr><th>ID</th><th>Name</th><th>Age</th><th>Speciality</th><th>Patients</th></tr>';
+  list.forEach(d=>{
+    h+='<tr><td>'+d.id+'</td><td>'+d.name+'</td><td>'+d.age+'</td><td>'+d.speciality+'</td><td>'+d.patientIds.length+'</td></tr>';
+  });
+  return h+'</table>';
+}
+function refresh(){
+  statPatients.textContent=patients.length;
+  statDoctors.textContent=doctors.length;
+  statTreated.textContent=patients.filter(p=>p.treated).length;
+  statPending.textContent=patients.filter(p=>!p.treated).length;
+  patientTable.innerHTML=patTable(patients);
+  doctorTableDash.innerHTML=docTable(doctors);
+  doctorTable.innerHTML=docTable(doctors);
+  allPatients.innerHTML=patTable(patients);
+  allDoctors.innerHTML=docTable(doctors);
+}
+
+// ---------- demo seed data (so the GUI isn't empty in your presentation) ----------
+function seed(){
+  doctors.push({name:'Dr.Sara',id:1,age:42,speciality:'cardiology',patientIds:[]});
+  doctors.push({name:'Dr.Ahmed',id:2,age:38,speciality:'neurology',patientIds:[]});
+  ['Ali|101|25|cardiology','Hina|102|30|neurology','Bilal|103|19|cardiology'].forEach(s=>{
+    const[n,i,a,ill]=s.split('|');
+    patients.push({name:n,id:+i,age:+a,illness:ill,treated:false,doctorId:null,appointments:[],items:[]});
+    totalPatients++;
+  });
+  // pre-assign + one appointment + one bill item for a nice demo
+  assignSilent(101); assignSilent(102);
+  findPatient(101).appointments.push({date:'22-06-2026',day:'Monday',time:'10:00AM'});
+  findPatient(101).items.push({name:'ECG',price:2000});
+}
+function assignSilent(pid){
+  const p=findPatient(pid); if(!p)return;
+  const d=doctors.find(x=>x.speciality===p.illness);
+  if(d){ p.doctorId=d.id; d.patientIds.push(p.id); }
+}
+
+seed();
+refresh();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0ee0f0bb8f2541f',t:'MTc4MTk5Mjk1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
